@@ -1,0 +1,16 @@
+module testbench();
+    reg clk = 0;
+    reg reset = 1;
+    pipeline_processor uut(clk, reset);
+
+    initial begin
+        $dumpfile("pipeline.vcd");
+        $dumpvars(0, testbench);
+        
+        #5 reset = 0;
+        #100 $finish;
+    end
+
+    always #5 clk = ~clk;
+endmodule
+
