@@ -24,6 +24,6 @@ The waveform results confirmed that the pipeline works correctly. Instructions e
 
 
 OUTPUT ::
+                  ![Image](https://github.com/user-attachments/assets/fd8e346e-8ef9-4494-b906-472214419d7c)
 
-
-     ![Image](https://github.com/user-attachments/assets/fd8e346e-8ef9-4494-b906-472214419d7c)
+    
