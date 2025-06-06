@@ -1,0 +1,66 @@
+module pipeline_processor (
+    input clk,
+    input reset
+);
+    reg [7:0] regfile [0:7];
+    reg [15:0] instr_mem [0:15];
+    reg [15:0] IF_ID_instr;
+    reg [7:0] ID_EX_A, ID_EX_B;
+    reg [2:0] ID_EX_dest;
+    reg [2:0] ID_EX_opcode;
+    reg [7:0] EX_WB_result;
+    reg [2:0] EX_WB_dest;
+    wire [2:0] opcode = IF_ID_instr[15:13];
+    wire [2:0] rs1 = IF_ID_instr[12:10];
+    wire [2:0] rs2 = IF_ID_instr[9:7];
+    wire [2:0] rd  = IF_ID_instr[6:4];
+    reg [3:0] PC;
+    reg [7:0] ALU_result;
+    reg [7:0] data_mem [0:15];
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            PC <= 0;
+            IF_ID_instr <= 0;
+        end else begin
+            IF_ID_instr <= instr_mem[PC];
+            PC <= PC + 1;
+        end
+    end
+
+   
+    always @(posedge clk) begin
+        ID_EX_A <= regfile[rs1];
+        ID_EX_B <= regfile[rs2];
+        ID_EX_dest <= rd;
+        ID_EX_opcode <= opcode;
+    end
+
+   
+    always @(posedge clk) begin
+        case (ID_EX_opcode)
+            3'b000: ALU_result <= ID_EX_A + ID_EX_B; // ADD
+            3'b001: ALU_result <= ID_EX_A - ID_EX_B; // SUB
+            3'b010: ALU_result <= data_mem[ID_EX_B]; // LOAD (B used as addr)
+            default: ALU_result <= 8'h00;
+        endcase
+        EX_WB_result <= ALU_result;
+        EX_WB_dest <= ID_EX_dest;
+    end
+
+    always @(posedge clk) begin
+        regfile[EX_WB_dest] <= EX_WB_result;
+    end
+    initial begin
+        instr_mem[0] = 16'b000_010_011_001_0000;  // ADD R1 = R2 + R3
+        instr_mem[1] = 16'b001_001_010_100_0000;  // SUB R4 = R1 - R2
+        instr_mem[2] = 16'b010_000_001_101_0000;  // LOAD R5 = MEM[R1]
+        
+      
+        regfile[2] = 8'd10;
+        regfile[3] = 8'd5;
+        data_mem[15] = 8'd99;  // Arbitrary memory value
+    end
+
+endmodule
+
